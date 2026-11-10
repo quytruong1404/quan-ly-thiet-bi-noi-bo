@@ -11,7 +11,7 @@
 | Thành phần | Đường dẫn (URL) | Ghi chú |
 | :--- | :--- | :--- |
 | **Link GitHub (Source Code)** | [https://github.com/quytruong1404/quan-ly-thiet-bi-noi-bo](https://github.com/quytruong1404/quan-ly-thiet-bi-noi-bo) | Mã nguồn trọn vẹn Frontend & Backend |
-| **Link Frontend (Production Web)** | [https://quan-ly-thiet-bi-noi-bo.vercel.app](https://quan-ly-thiet-bi-noi-bo.vercel.app) | Triển khai trên nền tảng Vercel |
+| **Link Frontend (Production Web)** | [https://frontend-eight-beta-68.vercel.app](https://frontend-eight-beta-68.vercel.app) | Triển khai trên nền tảng Vercel (Live) |
 | **Link Backend (REST API)** | [https://quan-ly-thiet-bi-noi-bo.onrender.com](https://quan-ly-thiet-bi-noi-bo.onrender.com) | Triển khai trên nền tảng Cloud Render |
 | **Link Tài Liệu Swagger UI** | [https://quan-ly-thiet-bi-noi-bo.onrender.com/swagger-ui/index.html](https://quan-ly-thiet-bi-noi-bo.onrender.com/swagger-ui/index.html) | Kiểm thử trực tiếp 15+ API endpoints |
 
