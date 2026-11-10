@@ -2,6 +2,8 @@ import { Category, Device, BorrowRequest, INITIAL_CATEGORIES, INITIAL_DEVICES, I
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
+let isBackendLive = false;
+
 class StorageManager {
   private static isClient = typeof window !== 'undefined';
 
@@ -39,16 +41,45 @@ class StorageManager {
 }
 
 export const api = {
+  // Check live connection
+  async checkHealth(): Promise<boolean> {
+    try {
+      const res = await fetch(`${BASE_URL}/categories`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3000),
+      });
+      isBackendLive = res.ok;
+      return res.ok;
+    } catch {
+      isBackendLive = false;
+      return false;
+    }
+  },
+
+  isLive(): boolean {
+    return isBackendLive;
+  },
+
+  getBaseUrl(): string {
+    return BASE_URL;
+  },
+
   // 1. Devices
   async getDevices(): Promise<Device[]> {
     try {
-      const res = await fetch(`${BASE_URL}/devices`, { cache: 'no-store' });
+      const res = await fetch(`${BASE_URL}/devices`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3000),
+      });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
+        if (Array.isArray(data) && data.length > 0) {
+          isBackendLive = true;
+          return data;
+        }
       }
     } catch {
-      // Fallback to local storage / mock
+      isBackendLive = false;
     }
     return StorageManager.getDevices();
   },
@@ -60,8 +91,13 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(device),
       });
-      if (res.ok) return await res.json();
-    } catch {}
+      if (res.ok) {
+        isBackendLive = true;
+        return await res.json();
+      }
+    } catch {
+      isBackendLive = false;
+    }
 
     const devices = StorageManager.getDevices();
     const newDevice: Device = {
@@ -76,7 +112,10 @@ export const api = {
   async updateDeviceStatus(id: number, status: Device['status']): Promise<void> {
     try {
       await fetch(`${BASE_URL}/devices/${id}/status?status=${status}`, { method: 'PATCH' });
-    } catch {}
+      isBackendLive = true;
+    } catch {
+      isBackendLive = false;
+    }
 
     const devices = StorageManager.getDevices();
     const target = devices.find(d => d.id === id);
@@ -89,21 +128,37 @@ export const api = {
   // 2. Categories
   async getCategories(): Promise<Category[]> {
     try {
-      const res = await fetch(`${BASE_URL}/categories`, { cache: 'no-store' });
-      if (res.ok) return await res.json();
-    } catch {}
+      const res = await fetch(`${BASE_URL}/categories`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) {
+        isBackendLive = true;
+        return await res.json();
+      }
+    } catch {
+      isBackendLive = false;
+    }
     return INITIAL_CATEGORIES;
   },
 
   // 3. Borrow Requests
   async getRequests(): Promise<BorrowRequest[]> {
     try {
-      const res = await fetch(`${BASE_URL}/borrow-requests`, { cache: 'no-store' });
+      const res = await fetch(`${BASE_URL}/borrow-requests`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3000),
+      });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
+        if (Array.isArray(data) && data.length > 0) {
+          isBackendLive = true;
+          return data;
+        }
       }
-    } catch {}
+    } catch {
+      isBackendLive = false;
+    }
     return StorageManager.getRequests();
   },
 
@@ -122,8 +177,13 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dto),
       });
-      if (res.ok) return await res.json();
-    } catch {}
+      if (res.ok) {
+        isBackendLive = true;
+        return await res.json();
+      }
+    } catch {
+      isBackendLive = false;
+    }
 
     const devices = StorageManager.getDevices();
     const requests = StorageManager.getRequests();
@@ -161,7 +221,10 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminId: 1, approved, adminNote: note }),
       });
-    } catch {}
+      isBackendLive = true;
+    } catch {
+      isBackendLive = false;
+    }
 
     const requests = StorageManager.getRequests();
     const req = requests.find(r => r.id === requestId);
@@ -193,7 +256,10 @@ export const api = {
           adminNote: note,
         }),
       });
-    } catch {}
+      isBackendLive = true;
+    } catch {
+      isBackendLive = false;
+    }
 
     const requests = StorageManager.getRequests();
     const req = requests.find(r => r.id === requestId);
